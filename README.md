@@ -25,6 +25,10 @@ A comprehensive Student Management System with full authentication, designed to 
 - Assign students to semesters
 - Track academic progress and grades
 
+### Two Role
+- Admin (Can manage students and also staffs and delete )
+- Staffs (Just add and manage students)
+
 ### Authentication & Security
 - Secure login and registration for admins and users
 - Role-based access control
