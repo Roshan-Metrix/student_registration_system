@@ -30,6 +30,62 @@ export const studentDetail = async (req, res) => {
       scholarshipDetails,
     } = req.body;
 
+    // Validate required fields
+    const requiredFields = {
+      name: "Name",
+      dob: "Date of Birth",
+      fatherName: "Father's Name",
+      contactNo: "Contact Number",
+      email: "Email",
+      address: "Address",
+      gender: "Gender",
+      course: "Course",
+      year: "Year"
+    };
+
+    for (const [field, label] of Object.entries(requiredFields)) {
+      if (!req.body[field]) {
+        return res.status(400).json({
+          success: false,
+          message: `${label} is required`
+        });
+      }
+    }
+
+    // Validate email format
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (email && !emailRegex.test(email)) {
+      return res.status(400).json({
+        success: false,
+        message: "Please enter a valid email address"
+      });
+    }
+
+    // Validate age (16-100)
+    if (dob) {
+      const birthDate = new Date(dob);
+      const today = new Date();
+      let age = today.getFullYear() - birthDate.getFullYear();
+      const monthDiff = today.getMonth() - birthDate.getMonth();
+      if (monthDiff < 0 || (monthDiff === 0 && today.getDate() < birthDate.getDate())) {
+        age--;
+      }
+      if (age < 16 || age > 100) {
+        return res.status(400).json({
+          success: false,
+          message: "Age must be between 16 and 100 years"
+        });
+      }
+    }
+
+    // Validate contact number (10 digits)
+    if (contactNo && !/^\d{10}$/.test(contactNo)) {
+      return res.status(400).json({
+        success: false,
+        message: "Contact number must be 10 digits"
+      });
+    }
+
     const photo = req.file ? req.file.buffer : null;
 
     const db = (await createDB.getConnection)
@@ -49,8 +105,8 @@ export const studentDetail = async (req, res) => {
     }
 
    if (photo && Buffer.byteLength(photo, 'base64') > 500 * 1024) {
-  return res.status(400).json({ success: false, message: "Photo must be less than 500KB" });
-}
+      return res.status(400).json({ success: false, message: "Photo must be less than 500KB" });
+   }
 
     const insertQuery = `
       INSERT INTO studentdata (
@@ -278,6 +334,62 @@ export const updateStudentDetail = async (req, res) => {
       scholarshipDetails,
     } = req.body;
 
+    // Validate required fields
+    const requiredFields = {
+      name: "Name",
+      dob: "Date of Birth",
+      fatherName: "Father's Name",
+      contactNo: "Contact Number",
+      email: "Email",
+      address: "Address",
+      gender: "Gender",
+      course: "Course",
+      year: "Year"
+    };
+
+    for (const [field, label] of Object.entries(requiredFields)) {
+      if (!req.body[field]) {
+        return res.status(400).json({
+          success: false,
+          message: `${label} is required`
+        });
+      }
+    }
+
+    // Validate email format
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (email && !emailRegex.test(email)) {
+      return res.status(400).json({
+        success: false,
+        message: "Please enter a valid email address"
+      });
+    }
+
+    // Validate age (16-100)
+    if (dob) {
+      const birthDate = new Date(dob);
+      const today = new Date();
+      let age = today.getFullYear() - birthDate.getFullYear();
+      const monthDiff = today.getMonth() - birthDate.getMonth();
+      if (monthDiff < 0 || (monthDiff === 0 && today.getDate() < birthDate.getDate())) {
+        age--;
+      }
+      if (age < 16 || age > 100) {
+        return res.status(400).json({
+          success: false,
+          message: "Age must be between 16 and 100 years"
+        });
+      }
+    }
+
+    // Validate contact number (10 digits)
+    if (contactNo && !/^\d{10}$/.test(contactNo)) {
+      return res.status(400).json({
+        success: false,
+        message: "Contact number must be 10 digits"
+      });
+    }
+
     const photo = req.file ? req.file.buffer : null; // Use null instead of empty string
 
     // Check photo size if uploaded
@@ -293,6 +405,21 @@ export const updateStudentDetail = async (req, res) => {
     );
     if (!studentRows.length) {
       return res.status(404).json({ success: false, message: "Student not found." });
+    }
+
+    // Check for duplicate email (only if email is being changed)
+    if (email && email !== studentRows[0].email) {
+      const [existingEmail] = await db.execute(
+        "SELECT * FROM studentdata WHERE email = ? AND student_uid != ?",
+        [email, student_uid]
+      );
+      
+      if (existingEmail.length > 0) {
+        return res.status(400).json({
+          success: false,
+          message: "Email already exists for another student"
+        });
+      }
     }
 
     const updateQuery = `

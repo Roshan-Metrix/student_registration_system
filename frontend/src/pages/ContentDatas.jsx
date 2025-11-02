@@ -154,6 +154,63 @@ const ContentDatas = () => {
     }));
   };
 
+  // Validation functions
+  const validateEmail = (email) => {
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    return emailRegex.test(email);
+  };
+
+  const validateAge = (dob) => {
+    if (!dob) return false;
+    const birthDate = new Date(dob);
+    const today = new Date();
+    let age = today.getFullYear() - birthDate.getFullYear();
+    const monthDiff = today.getMonth() - birthDate.getMonth();
+    if (monthDiff < 0 || (monthDiff === 0 && today.getDate() < birthDate.getDate())) {
+      age--;
+    }
+    return age >= 16 && age <= 100;
+  };
+
+  const validateRequiredFields = () => {
+    const requiredFields = {
+      name: "Name",
+      dob: "Date of Birth",
+      fatherName: "Father's Name",
+      contactNo: "Contact Number",
+      email: "Email",
+      address: "Address",
+      gender: "Gender"
+    };
+
+    for (const [field, label] of Object.entries(requiredFields)) {
+      if (!formData[field]) {
+        toast.error(`${label} is required`);
+        return false;
+      }
+    }
+
+    // Validate email format
+    if (formData.email && !validateEmail(formData.email)) {
+      toast.error("Please enter a valid email address");
+      return false;
+    }
+
+    // Validate age
+    if (formData.dob && !validateAge(formData.dob)) {
+      toast.error("Age must be between 16 and 100 years");
+      return false;
+    }
+
+    // Validate contact number (10 digits)
+    if (formData.contactNo && !/^\d{10}$/.test(formData.contactNo)) {
+      toast.error("Contact number must be 10 digits");
+      return false;
+    }
+
+    return true;
+  };
+
   // Step navigation
   const handleNext = async () => {
     if (step === 1 && (!formData.course || !formData.year)) {
@@ -162,6 +219,11 @@ const ContentDatas = () => {
     }
     // Step 2 submission
     if (step === 2) {
+      // Validate required fields before submission
+      if (!validateRequiredFields()) {
+        return;
+      }
+
       try {
         const studentForm = new FormData();
         Object.entries(formData).forEach(([key, value]) => {
