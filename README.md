@@ -83,7 +83,7 @@ Project/
 - `/api/auth` - Authentication routes
 
 ## Videos
-- [Demo Video](github.mp4)
+- [Demo Video](demo.gif)
 
 ## License
 This project is licensed under the [MIT License](license.txt).
