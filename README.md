@@ -2,6 +2,11 @@
 
 A comprehensive Student Management System with full authentication, designed to manage student information, fees, and semester details.
 
+##  Demo Video
+ <p align="center">
+  <img src="demo.gif" width="600" autoplay/>
+</p>
+
 ## Features
 
 ### Student Information
@@ -82,10 +87,6 @@ Project/
 - `/api/semesters` - Manage semester information
 - `/api/auth` - Authentication routes
 
-##  Demo Video
- <p align="center">
-  <img src="demo.gif" width="600" autoplay/>
-</p>
 
 
 ## License
